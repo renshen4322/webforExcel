@@ -1,0 +1,74 @@
+﻿@model WebExcelPublish.Models.LoginViewModel
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";    
+}
+@section headers
+{
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+}
+@{ 
+    HttpCookie cookie = System.Web.HttpContext.Current.Request.Cookies.Get("COOKIE_NAME_FOR_USER");
+    ViewData["username"] = (cookie == null ? "" : cookie["COOKIE_USER_NAME"].ToString().Trim());
+    ViewData["userpass"] = (cookie == null ? "" : cookie["COOKIE_USER_PASS"].ToString().Trim());
+    //if (cookie != null) {
+    //    ViewData["CHECKBOX"] = "checked=checked";
+    //}
+}
+<div class="dialog">
+    <div class="panel panel-default">
+        @*<p class="panel-heading no-collapse">登陆</p>*@
+        <div class="panel-body">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <span style="color:red;">
+                    @Html.ValidationSummary(true)
+                </span>
+                <div class="form-group">
+                    @Html.LabelFor(a => a.UserName, new {@class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.TextBoxFor(m => m.UserName, new {@Value = ViewData["username"], @class = "form-control" })
+                        <span style="color:red;">@Html.ValidationMessageFor(m => m.UserName)</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password, new {@class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.PasswordFor(m => m.Password, new { @Value = ViewData["userpass"], @class = "form-control" })
+                        <span style="color:red;">@Html.ValidationMessageFor(m => m.Password)</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        @Html.LabelFor(m => m.RememberMe)
+                        @Html.CheckBoxFor(m => m.RememberMe)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <input type="submit" value="登录" class="pull-right btn btn-success" style="margin-top:20px;" />
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+</div>
+@section footers{
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#btnBack").click(function () {
+                alert("22");
+                location.href = "/PublishExcel/Index";
+            })
+        })
+    </script>
+
+}
+
+

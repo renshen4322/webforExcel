@@ -1,0 +1,206 @@
+﻿@using publishCommon;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section headers
+{
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+}
+<div>
+    <input type="hidden" value="@ViewBag.OrderInfo" id="HiddenOrderPlacement" />
+    <input type="hidden" value="@ViewBag.IsShow" id="hidderShow" />
+
+    <table class="table table-bordered">
+        <tr>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">关键字:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <input class="admin-input-calendar" id="TabKeyword" name="keyword" placeholder="" type="text" value="@ViewBag.KeywordInfo" />
+            </td>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">排序字段:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <input class="admin-input-calendar" id="TabOrderBy" name="orderby" placeholder="" type="text" value="@ViewBag.OrderByInfo" />
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">排序方法:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <select name="order" id="TabOrder">
+                    <option value="1">升序</option>
+                    <option value="2" selected="selected">降序</option>
+                </select>
+            </td>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">分类:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <input class="admin-input-calendar" id="TabCategory" name="category" placeholder="" type="text" value="@ViewBag.CategoryInfo" />
+            </td>
+        </tr>
+        <tr>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">过滤用户:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <input class="admin-input-calendar" id="TabUserIds" name="userIds" placeholder="" type="text" value="@ViewBag.UserIdsInfo" />
+            </td>
+            <td style="width:150px;">
+                <div class="form-horizontal">
+                    <div class="control-group">
+                        <label class="control-label">过滤指定条件:</label>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <input class="admin-input-calendar" id="TabFilter" name="filter" placeholder="" type="text" value="@ViewBag.FilterInfo" />
+            </td>
+        </tr>
+    </table>
+    <input id="Btn_Search" type="button" class="btn btn-success" style="margin-top:20px;" value="查询"><span>&nsub;&nbsp;</span><input id="Btn_Export" type="button" class="btn btn-success" style="margin-top:20px;" value="导出"><span>&nsub;&nbsp;</span><input type="button" value="导入" class="btn btn-success" style="margin-top:20px;" id="btnImport" />
+
+    <br />
+</div>
+<div>
+    <table id="_stable" class="table table-bordered">
+        <thead>
+            <tr>
+                <th style="width:100px;text-align:center">Name</th>
+                <th style="width:100px;text-align:center">Id</th>
+                <th style="width:100px;text-align:center">CategoryId</th>
+                <th style="width:100px;text-align:center">OwnerId</th>
+                <th style="width:100px;text-align:center">Images</th>
+                <th style="width:100px;text-align:center">Description</th>
+                <th style="width:100px;text-align:center">Price</th>
+                <th style="width:100px;text-align:center">TaobaoLink</th>
+                <th style="width:100px;text-align:center">LisTable</th>
+                <th style="width:100px;text-align:center">Published</th>
+            </tr>
+        </thead>
+        @{
+            PagerQuery<PagerInfo, IList<ProductModel>> EntityList = ViewBag.DataList;
+        }
+        @if (EntityList != null)
+        {
+            foreach (var item in EntityList.EntityList)
+            {
+                if (item.CustomAttributes != null)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Id</td>
+                        <td>@item.CategoryId</td>
+                        <td>@item.OwnerId</td>
+                        <td>@item.Images</td>
+                        <td>@item.Description</td>
+                        <td>@item.CustomAttributes[0].Value</td>
+                        <td>@item.CustomAttributes[1].Value</td>
+                        <td>@item.Listable</td>
+                        <td>@item.Published.ToString()</td>
+                    </tr>
+
+                }
+                else
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Id</td>
+                        <td>@item.CategoryId</td>
+                        <td>@item.OwnerId</td>
+                        <td>@item.Images</td>
+                        <td>@item.Description</td>
+                        <td></td>
+                        <td></td>
+                        <td>@item.Listable</td>
+                        <td>@item.Published.ToString()</td>
+                    </tr>
+                }
+
+            }
+        }
+    </table>
+    @if (EntityList != null)
+    {
+        @Html.Raw(Html.Pager("pager", EntityList.Pager.CurrentPageIndex, EntityList.Pager.PageSize, EntityList.Pager.RecordCount, "table-center", PageMode.Numeric))
+        <input type="hidden" name="currPage" id="currPage" value="@EntityList.Pager.CurrentPageIndex" />
+    }
+</div>
+
+@section footers{
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/transition.js"></script>
+    <script src="~/Scripts/modal.js"></script>
+    <script type="text/javascript">
+        $(function () {        
+
+            $('#Btn_Search').click(function () {
+                var tabindex = $("#currPage").val();
+                var tabKeyWord = $('#TabKeyword').val();
+                var tabOrderBy = $("#TabOrderBy").val();
+                var tabOrder = $('#TabOrder').val();               
+                var tabCategory = $('#TabCategory').val();
+                var tabUserIds = $('#TabUserIds').val();
+                var tabFilter = $('#TabFilter').val();
+                location.href = "/PublishExcel/Index?PageIndex=" + tabindex + "&strKeyWord=" + tabKeyWord + "&strOrderBy=" + tabOrderBy + "&strOrder=" + tabOrder + "&strCategory=" + tabCategory + "&strUserIds=" + tabUserIds + "&strFilter=" + tabFilter;
+            })
+
+            $('#Btn_Export').click(function () {
+                var tabindex = $("#TabIndex").val();
+                var tabsize = $("#TabSize").val();
+                var tabKeyWord = $('#TabKeyword').val();
+                var tabOrderBy = $("#TabOrderBy").val();
+                var tabOrder = $('#TabOrder').find('option:selected').val();
+                var tabCategory = $('#TabCategory').val();
+                var tabUserIds = $('#TabUserIds').val();
+                var tabFilter = $('#TabFilter').val();
+                location.href = "/PublishExcel/ExportToExcl?strKeyWord=" + tabKeyWord + "&strOrderBy=" + tabOrderBy + "&strOrder=" + tabOrder + "&strCategory=" + tabCategory + "&strUserIds=" + tabUserIds + "&strFilter=" + tabFilter;
+            })
+
+
+            var placement = $('#HiddenOrderPlacement').val();
+            $('#TabOrder option').each(function () {
+                if (placement == $(this).val()) {
+                    $(this).attr('selected', 'selected');
+                }
+            });
+
+            $("#btnImport").click(function () {
+                location.href = "/PublishExcel/ImportPage";
+            });
+
+
+
+
+        });
+
+      
+
+    </script>
+}

@@ -1,0 +1,137 @@
+﻿
+@{
+    ViewBag.Title = "ImportPage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section headers
+{
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-progressbar-3.3.4.css" rel="stylesheet" />
+}
+<h2>导入Excel并更新发布</h2>
+<form id="form1" enctype="multipart/form-data"  method="post" action="">
+    <table class="table table-bordered">
+        <tr>
+            <td>
+                <div class="control-group">
+                    选择上传文件：
+                </div>
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="control-group">
+                    <input name="file" type="file" id="file" />
+                </div>
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="control-group" style="margin-left:50px;">
+                    <br /><span id="orgInfo"></span>
+                    <input id="btnimport" type="button" class="btn btn-success" style="margin-top:20px; width:155px;" value="批量导入物品信息">&nbsp;&nbsp;<input id="btnBack" type="button" class="btn btn-success" style="margin-top:20px;" value="返回">
+                    
+                </div>
+            </td>
+        </tr>
+    </table>
+</form>
+<div class="modal" id="mymodal">
+    <div class="modal-dialog">
+        <div class="modal-content"> 
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">提示！</h4>
+            </div>           
+            <div class="modal-body">
+                <p><span id="output" style="font-size: 24px; color:aqua;">请等待……</span></p>
+            </div>        
+            <div class="modal-footer">              
+            </div>    
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div><span id="output2" style="font-size: 24px; color:aqua;"></span></div>
+<div class="progress">
+    <div id="progressBar" class="progress-bar" role="progressbar" data-transitiongoal=""></div>
+</div>
+<div id="totalTime"></div>
+<table id="project">
+
+</table>
+@section footers{
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/transition.js"></script>
+    <script src="~/Scripts/modal.js"></script>
+    <script src="~/Scripts/bootstrap-progressbar.js"></script>
+    <script src="~/Scripts/jquery.form.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#btnBack").click(function () {
+                location.href = "/PublishExcel/Index";
+            });
+            
+            $("#btnimport").click(function () {               
+                $("#mymodal").modal("show");
+                
+                    $("#form1").ajaxSubmit({
+                        type: 'post', 
+                        url: '/PublishExcel/Import', 
+                        success: function (json) {
+                            
+                            $("#totalTime p").empty();
+                            $("#project tbody").empty();
+                            var tbody = "";
+                            var data = $.parseJSON(json);
+                            if (data.result == false) {
+                                $('#mymodal').modal('hide');
+                                $("#output2").text(data.message).css("color","red");
+                            } else {
+                                $("#output2").text(data.CountInfo + " / " + data.swCount);
+                                var percent = ((data.CountInfo / data.swCount).toFixed(2)) * 100;
+                                updateProgress(percent);
+                                if (data.CountInfo == data.swCount) {
+                                    $('#mymodal').modal('hide');
+                                    $.each(data.message, function (n, value) {
+                                        var trs = "";
+                                        trs += "<tr><td style='color:red;'>" + value + "</td> </tr>";
+                                        tbody += trs;
+                                    })
+                                    $("#project").append(tbody);
+                                    var strtime = "<p style='color:red;'>请求共花费" + data.totaltime + " 秒</p>";
+                                    $("#totalTime").append(strtime);
+                                }
+
+                            }
+
+                            //$.each(data.message, function (n, value) {
+                            //    var trs = "";
+                            //    trs += "<tr><td style='color:red;'>" + value + "</td> </tr>";
+                            //    tbody += trs;
+                            //})                           
+                            //$("#project").append(tbody);
+                            //var strtime = "<p style='color:red;'>请求共花费" + data.totaltime + " 秒</p>";
+                            //$("#totalTime").append(strtime);
+                        }
+                        
+                });
+
+            });
+
+            function progress(percent, $element) {
+                var progressBarWidth = percent * $element.width() / 100;
+                $element.find('div').animate({ width: progressBarWidth }, 500).html(percent + "% ");
+            }
+
+            function updateProgress(percentage) {
+                $('.progress .progress-bar').attr('data-transitiongoal', percentage).progressbar({ display_text: 'fill' });
+            }
+
+  })
+    </script>
+
+}

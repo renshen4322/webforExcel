@@ -1,0 +1,23 @@
+﻿@if (Session["UserName"] != null)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <span class= "navbar-brand">您好！ @Session["UserName"].ToString()</span>
+            </li>
+            <li>@Html.ActionLink("注销", "LogOff", "Account")</li>
+        </ul>
+    }
+ 
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+       
+        <li>@Html.ActionLink("关于", "Contact", "Home")</li>   
+    </ul>
+}
+
