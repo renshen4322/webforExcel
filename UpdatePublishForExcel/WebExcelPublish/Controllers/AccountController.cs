@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using publishCommon;
+using publishCommon.Domain;
+using publishCommon.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,13 +25,20 @@ namespace WebExcelPublish.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel model, string returnUrl)
         {
+            signVlidaService _signService = new signVlidaService();
             if (ModelState.IsValid)
             {
                 Dictionary<string, string> httpParams = new Dictionary<string, string>();
-                httpParams.Add("UserName", model.UserName);
+                httpParams.Add("client_id", new ClientClass().client_id);
+                httpParams.Add("device_id", _signService.GetDiviceKey());
                 httpParams.Add("grant_type", "password");
-                httpParams.Add("Password", model.Password);               
+                httpParams.Add("username", model.UserName);
+                httpParams.Add("password", model.Password);
+                httpParams.Add("client_secret", _signService.Getclient_secret(new ClientClass(), model.UserName, model.Password));
+                httpParams.Add("useSign", "0");
+                httpParams.Add("debugger", "true");
                 var respon = HttpRequstHelper.OperateRequest(EnumExtenstions.GetDescription(MethodType.POST), tokenUrl, httpParams, "application/x-www-form-urlencoded");
+
                 TokenResponseEntity entity = new TokenResponseEntity();
                 if (respon.StatusCode != 200)
                 {
@@ -54,14 +63,13 @@ namespace WebExcelPublish.Controllers
                         cookie["COOKIE_USER_PASS"] = null;
                         System.Web.HttpContext.Current.Response.Cookies.Add(cookie);
                     }
-                    var result = JsonConvert.DeserializeObject<TokenResponseEntity>(respon.Body.ToString());                    
+                    var result = JsonConvert.DeserializeObject<TokenResponseEntity>(respon.Body.ToString());
                     SessionHelper.SetSession("UserName", result.UserName);
-                    SessionHelper.SetSession("Token", result.Access_token);                    
+                    SessionHelper.SetSession("Token", result.Access_token);
                     return RedirectToAction("Index", "PublishExcel");
                 }
-               
+
             }
-            
             return View(model);
         }
 
